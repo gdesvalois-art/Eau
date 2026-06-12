@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="fr" style="background:#0A1628;color:#F0F8FF">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HydroTrack</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg:#0A1628; --surface:#0E2040; --card:#132850; --card2:#172f5e;
+    --cyan:#00B4D8; --cyan-light:#90E0EF; --text:#F0F8FF; --muted:#7aabcc;
+    --danger:#FF6B6B; --success:#4dd9ac; --warn:#f5a623;
+    --border:rgba(0,180,216,.18); --radius:12px;
+  }
+  html, body {
+    background: #0A1628 !important;
+    color: #F0F8FF !important;
+    font-family: 'Inter', sans-serif;
+    min-height: 100vh;
+    -webkit-text-size-adjust: 100%;
+  }
+  .app { max-width: 680px; margin: 0 auto; padding: 0 1rem 5rem; }
+
+  /* HEADER */
+  header { padding: 1.75rem 0 1.25rem; display: flex; align-items: center; gap: .75rem; }
+  header h1 { font-family: 'Space Grotesk', sans-serif; font-size: 1.75rem; font-weight: 700; letter-spacing: -.03em; color: #F0F8FF; }
+  header h1 span { color: #00B4D8; }
+  .drop-icon { font-size: 1.8rem; animation: drip 3s ease-in-out infinite; }
+  @keyframes drip { 0%,100%{transform:translateY(0)} 50%{transform:translateY(4px)} }
+
+  /* TABS */
+  .tabs { display: flex; gap: 0; margin-bottom: 1.5rem; border-bottom: 1px solid var(--border); overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+  .tabs::-webkit-scrollbar { display: none; }
+  .tab {
+    background: none; border: none; cursor: pointer; white-space: nowrap;
+    font-family: 'Inter', sans-serif; font-size: .82rem; font-weight: 500; color: #7aabcc;
+    padding: .65rem .9rem; border-bottom: 2px solid transparent; position: relative; top: 1px;
+    transition: color .2s;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .tab.active { color: #00B4D8; border-bottom-color: #00B4D8; }
+
+  /* PANELS */
+  .panel { display: none; }
+  .panel.active { display: block; }
+
+  /* SECTION TITLE */
+  .section-title {
+    font-family: 'Space Grotesk', sans-serif; font-size: .72rem; font-weight: 600;
+    letter-spacing: .12em; text-transform: uppercase; color: #00B4D8;
+    margin: 1.5rem 0 .75rem; display: flex; align-items: center; gap: .5rem;
+  }
+  .section-title::after { content:''; flex:1; height:1px; background: var(--border); }
+
+  /* CARD */
+  .card {
+    background: #132850; border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 1.1rem 1.25rem;
+  }
+  .card-title { font-size: .68rem; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: #7aabcc; margin-bottom: .4rem; }
+  .card-value { font-family: 'Space Grotesk', sans-serif; font-size: 1.7rem; font-weight: 700; line-height: 1.1; color: #F0F8FF; }
+  .card-value small { font-size: .85rem; font-weight: 400; color: #7aabcc; }
+  .card-sub { font-size: .74rem; color: #7aabcc; margin-top: .3rem; }
+
+  /* GRIDS */
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: .75rem; }
+  .grid1 { display: grid; grid-template-columns: 1fr; gap: .75rem; }
+
+  /* BADGE */
+  .badge { display: inline-flex; align-items: center; gap: 2px; font-size: .7rem; font-weight: 600; padding: .12rem .45rem; border-radius: 20px; margin-top: .3rem; }
+  .badge.up   { background: rgba(255,107,107,.15); color: #FF6B6B; }
+  .badge.down { background: rgba(77,217,172,.15);  color: #4dd9ac; }
+  .badge.neu  { background: rgba(122,171,204,.12); color: #7aabcc; }
+
+  /* FORM */
+  .form-card { background: #132850; border: 1px solid var(--border); border-radius: var(--radius); padding: 1.25rem; margin-bottom: 1.25rem; }
+  .form-card h2 { font-family: 'Space Grotesk', sans-serif; font-size: 1rem; font-weight: 600; margin-bottom: 1rem; color: #90E0EF; }
+  .field { display: flex; flex-direction: column; gap: .3rem; margin-bottom: .85rem; }
+  .field:last-child { margin-bottom: 0; }
+  label { font-size: .7rem; font-weight: 600; color: #7aabcc; letter-spacing: .06em; text-transform: uppercase; }
+  input[type="number"], input[type="date"], input[type="text"] {
+    background: #0E2040 !important; border: 1px solid var(--border); border-radius: 8px;
+    color: #F0F8FF !important; font-family: 'Space Grotesk', sans-serif; font-size: 1rem;
+    padding: .6rem .85rem; outline: none; width: 100%; transition: border-color .2s;
+    -webkit-appearance: none; appearance: none;
+  }
+  input:focus { border-color: #00B4D8; box-shadow: 0 0 0 3px rgba(0,180,216,.12); }
+  input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(.7) sepia(1) hue-rotate(170deg); }
+  .form-row2 { display: grid; grid-template-columns: 1fr 1fr; gap: .75rem; }
+
+  /* BUTTONS */
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: .35rem;
+    padding: .65rem 1.25rem; border-radius: 8px; border: none; cursor: pointer;
+    font-family: 'Inter', sans-serif; font-size: .88rem; font-weight: 600; transition: all .15s;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .btn-primary { background: #00B4D8; color: #0A1628; width: 100%; }
+  .btn-primary:active { background: #90E0EF; }
+  .btn-danger { background: rgba(255,107,107,.15); color: #FF6B6B; border: 1px solid rgba(255,107,107,.25); }
+  .btn-sm { padding: .28rem .6rem; font-size: .75rem; border-radius: 6px; }
+
+  /* HISTORY CARDS (mobile-first, no table) */
+  .hist-card {
+    background: #132850; border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 1rem 1.1rem; margin-bottom: .65rem; position: relative;
+  }
+  .hist-date { font-family: 'Space Grotesk', sans-serif; font-size: .95rem; font-weight: 600; color: #90E0EF; margin-bottom: .55rem; }
+  .hist-grid { display: grid; grid-template-columns: 1fr 1fr; gap: .3rem .75rem; }
+  .hist-item { }
+  .hist-label { font-size: .63rem; color: #7aabcc; text-transform: uppercase; letter-spacing: .07em; }
+  .hist-val { font-family: 'Space Grotesk', sans-serif; font-size: .92rem; font-weight: 600; color: #F0F8FF; }
+  .hist-note { font-size: .74rem; color: #7aabcc; margin-top: .5rem; font-style: italic; }
+  .hist-del { position: absolute; top: .75rem; right: .75rem; }
+
+  /* BARS */
+  .bar-wrap { margin-top: .5rem; }
+  .bar-row { display: flex; align-items: center; gap: .6rem; margin-bottom: .45rem; }
+  .bar-label { font-size: .72rem; color: #7aabcc; width: 55px; flex-shrink: 0; text-align: right; font-family: 'Space Grotesk', sans-serif; }
+  .bar-track { flex: 1; height: 9px; background: #0E2040; border-radius: 20px; overflow: hidden; }
+  .bar-fill { height: 100%; border-radius: 20px; transition: width .6s cubic-bezier(.4,0,.2,1); }
+  .bar-val { font-family: 'Space Grotesk', sans-serif; font-size: .74rem; color: #F0F8FF; width: 52px; flex-shrink: 0; }
+
+  /* SPARKLINE */
+  .sparkline-wrap { overflow: hidden; }
+  svg.sparkline { width: 100%; height: 55px; }
+
+  /* EMPTY */
+  .empty { text-align: center; padding: 2.5rem 1rem; color: #7aabcc; font-size: .9rem; }
+  .empty span { font-size: 2rem; display: block; margin-bottom: .6rem; }
+
+  /* TOAST */
+  #toast {
+    position: fixed; bottom: 1.5rem; left: 50%; transform: translateX(-50%) translateY(80px);
+    background: #00B4D8; color: #0A1628; padding: .6rem 1.4rem; border-radius: 30px;
+    font-weight: 600; font-size: .85rem; transition: transform .3s; z-index: 999;
+  }
+  #toast.show { transform: translateX(-50%) translateY(0); }
+
+  .hl-ok  { color: #4dd9ac; }
+  .hl-bad { color: #FF6B6B; }
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <div class="drop-icon">💧</div>
+    <h1>Hydro<span>Track</span></h1>
+  </header>
+
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('saisie',this)">Saisie</button>
+    <button class="tab" onclick="switchTab('bord',this)">Tableau de bord</button>
+    <button class="tab" onclick="switchTab('historique',this)">Historique</button>
+    <button class="tab" onclick="switchTab('comparaison',this)">Comparaison</button>
+  </div>
+
+  <!-- SAISIE -->
+  <div id="tab-saisie" class="panel active">
+    <div class="form-card">
+      <h2>📋 Nouveau relevé</h2>
+      <div class="field">
+        <label>Index du compteur (m³)</label>
+        <input type="number" id="inp-index" placeholder="ex: 1234.560" step="0.001" min="0" inputmode="decimal">
+      </div>
+      <div class="field">
+        <label>Date du relevé</label>
+        <input type="date" id="inp-date">
+      </div>
+      <div class="field">
+        <label>Note (optionnel)</label>
+        <input type="text" id="inp-note" placeholder="après vacances, fuite réparée…">
+      </div>
+      <button class="btn btn-primary" onclick="addEntry()">💾 Enregistrer le relevé</button>
+    </div>
+    <div id="recent-summary"></div>
+  </div>
+
+  <!-- TABLEAU DE BORD -->
+  <div id="tab-bord" class="panel">
+    <div id="dashboard-content">
+      <div class="empty"><span>📊</span>Ajoutez au moins 2 relevés pour voir les statistiques.</div>
+    </div>
+  </div>
+
+  <!-- HISTORIQUE -->
+  <div id="tab-historique" class="panel">
+    <div id="history-content">
+      <div class="empty"><span>📋</span>Aucun relevé enregistré.</div>
+    </div>
+  </div>
+
+  <!-- COMPARAISON -->
+  <div id="tab-comparaison" class="panel">
+    <div class="form-card">
+      <h2>🔍 Comparer deux périodes</h2>
+      <div style="margin-bottom:.5rem;font-size:.78rem;color:#90E0EF;font-weight:600">Période A</div>
+      <div class="form-row2" style="margin-bottom:.85rem">
+        <div class="field" style="margin-bottom:0"><label>Début</label><input type="date" id="cmp-a-start"></div>
+        <div class="field" style="margin-bottom:0"><label>Fin</label><input type="date" id="cmp-a-end"></div>
+      </div>
+      <div style="margin-bottom:.5rem;font-size:.78rem;color:#FF6B6B;font-weight:600">Période B</div>
+      <div class="form-row2" style="margin-bottom:.85rem">
+        <div class="field" style="margin-bottom:0"><label>Début</label><input type="date" id="cmp-b-start"></div>
+        <div class="field" style="margin-bottom:0"><label>Fin</label><input type="date" id="cmp-b-end"></div>
+      </div>
+      <button class="btn btn-primary" onclick="runCompare()">🔄 Comparer</button>
+    </div>
+    <div id="compare-result"></div>
+  </div>
+</div>
+
+<div id="toast">✓ Enregistré</div>
+
+<script>
+const KEY = 'hydrotrack_v3';
+function load(){ try{ return JSON.parse(localStorage.getItem(KEY))||[]; }catch{ return []; } }
+function save(d){ localStorage.setItem(KEY, JSON.stringify(d)); }
+let entries = load();
+
+const fmt  = n => n==null?'—':Number(n).toLocaleString('fr-FR',{minimumFractionDigits:3,maximumFractionDigits:3});
+const fmtL = n => n==null?'—':Number(n).toLocaleString('fr-FR',{minimumFractionDigits:0,maximumFractionDigits:0});
+const fmtDate = d => new Date(d+'T00:00:00').toLocaleDateString('fr-FR',{day:'2-digit',month:'short',year:'numeric'});
+const days = (d1,d2) => Math.round((new Date(d2)-new Date(d1))/86400000);
+function pct(a,b){ if(!a||!b||a===0) return null; return ((b-a)/Math.abs(a)*100).toFixed(1); }
+function badge(p, inverse=false){
+  if(p==null) return '';
+  const v=parseFloat(p), bad=inverse?(v>0):(v>0);
+  const cls=v===0?'neu':bad?'up':'down', arr=v===0?'→':v>0?'↑':'↓';
+  return `<span class="badge ${cls}">${arr} ${Math.abs(v)}%</span>`;
+}
+function sorted(){ return [...entries].sort((a,b)=>a.date.localeCompare(b.date)); }
+function today(){ return new Date().toISOString().slice(0,10); }
+
+document.getElementById('inp-date').value = today();
+
+function addEntry(){
+  const idx = parseFloat(document.getElementById('inp-index').value);
+  const dt  = document.getElementById('inp-date').value;
+  const nt  = document.getElementById('inp-note').value.trim();
+  if(!dt){ alert('Date obligatoire.'); return; }
+  if(isNaN(idx)||idx<0){ alert('Index invalide.'); return; }
+  const s = sorted();
+  if(s.length>0 && idx<s[s.length-1].index && dt>s[s.length-1].date){
+    if(!confirm(`Index (${idx}) < dernier relevé (${s[s.length-1].index}). Continuer ?`)) return;
+  }
+  if(entries.find(e=>e.date===dt)){
+    if(!confirm(`Relevé du ${fmtDate(dt)} déjà existant. Remplacer ?`)) return;
+    entries = entries.filter(e=>e.date!==dt);
+  }
+  entries.push({date:dt,index:idx,note:nt});
+  save(entries);
+  toast('✓ Relevé enregistré');
+  document.getElementById('inp-index').value='';
+  document.getElementById('inp-note').value='';
+  document.getElementById('inp-date').value=today();
+  renderAll();
+}
+
+function deleteEntry(date){
+  if(!confirm(`Supprimer le relevé du ${fmtDate(date)} ?`)) return;
+  entries=entries.filter(e=>e.date!==date);
+  save(entries);
+  renderAll();
+  toast('🗑 Supprimé');
+}
+
+function toast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2500);
+}
+
+function switchTab(id, btn){
+  document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('tab-'+id).classList.add('active');
+  renderAll();
+}
+
+function renderAll(){ renderRecent(); renderDashboard(); renderHistory(); }
+
+/* --- SAISIE résumé --- */
+function renderRecent(){
+  const el=document.getElementById('recent-summary'), s=sorted();
+  if(s.length===0){el.innerHTML='';return;}
+  const last=s[s.length-1], prev=s.length>1?s[s.length-2]:null;
+  const conso=prev?(last.index-prev.index):null;
+  const d=prev?days(prev.date,last.date):null;
+  const daily=conso&&d?(conso/d):null;
+  el.innerHTML=`
+    <div class="section-title">Dernier relevé</div>
+    <div class="grid2">
+      <div class="card"><div class="card-title">Index actuel</div><div class="card-value">${fmt(last.index)}<small> m³</small></div><div class="card-sub">${fmtDate(last.date)}</div></div>
+      ${conso!=null?`<div class="card"><div class="card-title">Consommation</div><div class="card-value">${fmt(conso)}<small> m³</small></div><div class="card-sub">depuis ${fmtDate(prev.date)}</div></div>`:''}
+      ${d!=null?`<div class="card"><div class="card-title">Durée</div><div class="card-value">${d}<small> j</small></div><div class="card-sub">entre les relevés</div></div>`:''}
+      ${daily!=null?`<div class="card"><div class="card-title">Moy / jour</div><div class="card-value">${fmtL(daily*1000)}<small> L</small></div><div class="card-sub">≈${(daily*1000/150).toFixed(1)} pers.</div></div>`:''}
+    </div>`;
+}
+
+/* --- DASHBOARD --- */
+function renderDashboard(){
+  const el=document.getElementById('dashboard-content'), s=sorted();
+  if(s.length<2){el.innerHTML='<div class="empty"><span>📊</span>Ajoutez au moins 2 relevés.</div>';return;}
+  const itvs=[];
+  for(let i=1;i<s.length;i++){
+    const p=s[i-1],c=s[i],conso=c.index-p.index,d=days(p.date,c.date),daily=d>0?conso/d:0;
+    itvs.push({start:p.date,end:c.date,conso,d,daily});
+  }
+  const consos=itvs.map(i=>i.conso), dailys=itvs.map(i=>i.daily);
+  const totConso=s[s.length-1].index-s[0].index, totDays=days(s[0].date,s[s.length-1].date);
+  const avgDaily=totDays>0?totConso/totDays:0;
+  const avgItv=consos.reduce((a,b)=>a+b,0)/consos.length;
+  const maxC=Math.max(...consos), minC=Math.min(...consos);
+  const lastC=consos[consos.length-1], prevC=consos.length>1?consos[consos.length-2]:null;
+  const monthly=buildMonthly(s);
+
+  el.innerHTML=`
+    <div class="section-title">Vue globale</div>
+    <div class="grid2">
+      <div class="card"><div class="card-title">Total consommé</div><div class="card-value">${fmt(totConso)}<small> m³</small></div><div class="card-sub">${totDays} j · ${s.length} relevés</div></div>
+      <div class="card"><div class="card-title">Moy / jour</div><div class="card-value">${fmtL(avgDaily*1000)}<small> L</small></div><div class="card-sub">${fmt(avgDaily)} m³/j</div></div>
+      <div class="card"><div class="card-title">Moy par relevé</div><div class="card-value">${fmt(avgItv)}<small> m³</small></div><div class="card-sub">${itvs.length} intervalles</div></div>
+      <div class="card"><div class="card-title">Dernier vs préc.</div><div class="card-value">${fmt(lastC)}<small> m³</small></div>${badge(pct(prevC,lastC),true)}</div>
+    </div>
+    <div class="section-title">Extrêmes</div>
+    <div class="grid2">
+      <div class="card"><div class="card-title">Max consommation</div><div class="card-value hl-bad">${fmt(maxC)}<small> m³</small></div><div class="card-sub">${fmtDate(itvs.find(i=>i.conso===maxC).end)}</div></div>
+      <div class="card"><div class="card-title">Min consommation</div><div class="card-value hl-ok">${fmt(minC)}<small> m³</small></div><div class="card-sub">${fmtDate(itvs.find(i=>i.conso===minC).end)}</div></div>
+      <div class="card"><div class="card-title">Max L/jour</div><div class="card-value hl-bad">${fmtL(Math.max(...dailys)*1000)}<small> L</small></div></div>
+      <div class="card"><div class="card-title">Min L/jour</div><div class="card-value hl-ok">${fmtL(Math.min(...dailys)*1000)}<small> L</small></div></div>
+    </div>
+    <div class="section-title">Par mois</div>
+    ${renderBars(monthly)}
+    <div class="section-title">Évolution</div>
+    <div class="card">${renderSparkline(consos)}<div class="card-sub" style="margin-top:.4rem">Consommation par intervalle</div></div>
+  `;
+}
+
+function buildMonthly(s){
+  const map={};
+  for(let i=1;i<s.length;i++){
+    const p=s[i-1],c=s[i],key=c.date.slice(0,7);
+    if(!map[key]) map[key]={conso:0,days:0};
+    map[key].conso+=c.index-p.index; map[key].days+=days(p.date,c.date);
+  }
+  return Object.entries(map).sort((a,b)=>a[0].localeCompare(b[0]))
+    .map(([k,v])=>({month:k,conso:v.conso,days:v.days,daily:v.days?v.conso/v.days:0}));
+}
+
+function renderBars(monthly){
+  if(!monthly.length) return '<div class="card"><div class="empty"><span>📅</span>Pas de données mensuelles.</div></div>';
+  const max=Math.max(...monthly.map(m=>m.conso));
+  const cols=['#00B4D8','#48CAE4','#0096C7','#90E0EF','#0077B6','#ADE8F4'];
+  let h='<div class="card"><div class="bar-wrap">';
+  monthly.forEach((m,i)=>{
+    const w=max>0?(m.conso/max*100).toFixed(1):0;
+    h+=`<div class="bar-row">
+      <div class="bar-label">${m.month}</div>
+      <div class="bar-track"><div class="bar-fill" style="width:${w}%;background:${cols[i%cols.length]}"></div></div>
+      <div class="bar-val">${fmt(m.conso)}</div>
+    </div>`;
+  });
+  return h+'</div></div>';
+}
+
+function renderSparkline(data){
+  if(data.length<2) return '';
+  const W=600,H=55,pad=6;
+  const mn=Math.min(...data),mx=Math.max(...data),range=mx-mn||1;
+  const pts=data.map((v,i)=>{
+    const x=pad+(i/(data.length-1))*(W-2*pad);
+    const y=H-pad-((v-mn)/range)*(H-2*pad);
+    return `${x},${y}`;
+  });
+  const fill=`${pts[0].split(',')[0]},${H} `+pts.join(' ')+` ${pts[pts.length-1].split(',')[0]},${H}`;
+  return `<div class="sparkline-wrap"><svg class="sparkline" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none">
+    <defs><linearGradient id="sg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#00B4D8" stop-opacity=".3"/>
+      <stop offset="100%" stop-color="#00B4D8" stop-opacity="0"/>
+    </linearGradient></defs>
+    <polygon points="${fill}" fill="url(#sg)"/>
+    <polyline points="${pts.join(' ')}" fill="none" stroke="#00B4D8" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+    ${pts.map((p,i)=>`<circle cx="${p.split(',')[0]}" cy="${p.split(',')[1]}" r="${i===data.length-1?5:3.5}" fill="${i===data.length-1?'#90E0EF':'#00B4D8'}"/>`).join('')}
+  </svg></div>`;
+}
+
+/* --- HISTORIQUE (cartes empilées, mobile-first) --- */
+function renderHistory(){
+  const el=document.getElementById('history-content'), s=sorted();
+  if(s.length===0){el.innerHTML='<div class="empty"><span>📋</span>Aucun relevé.</div>';return;}
+  let html='<div class="section-title">Tous les relevés</div>';
+  // rendu du plus récent au plus ancien
+  for(let i=s.length-1;i>=0;i--){
+    const cur=s[i], prev=i>0?s[i-1]:null;
+    const conso=prev?(cur.index-prev.index):null;
+    const d=prev?days(prev.date,cur.date):null;
+    const daily=conso&&d?conso/d:null;
+    const prevConso=i>1?(s[i-1].index-s[i-2].index):null;
+    const evo=conso&&prevConso?pct(prevConso,conso):null;
+    html+=`<div class="hist-card">
+      <div class="hist-del"><button class="btn btn-danger btn-sm" onclick="deleteEntry('${cur.date}')">✕</button></div>
+      <div class="hist-date">📅 ${fmtDate(cur.date)}</div>
+      <div class="hist-grid">
+        <div class="hist-item"><div class="hist-label">Index</div><div class="hist-val">${fmt(cur.index)} m³</div></div>
+        <div class="hist-item"><div class="hist-label">Consommation</div><div class="hist-val">${conso!=null?fmt(conso)+' m³':'—'}</div></div>
+        <div class="hist-item"><div class="hist-label">Durée</div><div class="hist-val">${d!=null?d+' j':'—'}</div></div>
+        <div class="hist-item"><div class="hist-label">Moy/jour</div><div class="hist-val">${daily!=null?fmtL(daily*1000)+' L':'—'}</div></div>
+      </div>
+      ${evo!=null?`<div style="margin-top:.45rem">${badge(evo,true)} <span style="font-size:.7rem;color:#7aabcc">vs période préc.</span></div>`:''}
+      ${cur.note?`<div class="hist-note">💬 ${cur.note}</div>`:''}
+    </div>`;
+  }
+  el.innerHTML=html;
+}
+
+/* --- COMPARAISON --- */
+function runCompare(){
+  const aS=document.getElementById('cmp-a-start').value, aE=document.getElementById('cmp-a-end').value;
+  const bS=document.getElementById('cmp-b-start').value, bE=document.getElementById('cmp-b-end').value;
+  const el=document.getElementById('compare-result');
+  if(!aS||!aE||!bS||!bE){alert('Remplissez toutes les dates.');return;}
+  const s=sorted();
+  function period(start,end){
+    const pts=s.filter(e=>e.date>=start&&e.date<=end);
+    if(pts.length<2) return null;
+    const d=days(pts[0].date,pts[pts.length-1].date);
+    const total=pts[pts.length-1].index-pts[0].index;
+    return{total,d,daily:d>0?total/d:0,count:pts.length,pts};
+  }
+  const A=period(aS,aE), B=period(bS,bE);
+  if(!A||!B){el.innerHTML='<div class="card" style="margin-top:1rem"><div class="empty"><span>⚠️</span>Pas assez de relevés dans une période (min. 2).</div></div>';return;}
+  const dT=pct(A.total,B.total), dD=pct(A.daily,B.daily);
+  el.innerHTML=`
+    <div class="section-title" style="margin-top:1.25rem">Résultat</div>
+    <div class="grid2">
+      <div class="card"><div class="card-title" style="color:#90E0EF">Période A</div><div class="card-value">${fmt(A.total)}<small> m³</small></div><div class="card-sub">${fmtDate(aS)} → ${fmtDate(aE)}</div><div class="card-sub">${A.d} j · ${fmtL(A.daily*1000)} L/j · ${A.count} relevés</div></div>
+      <div class="card"><div class="card-title" style="color:#FF6B6B">Période B</div><div class="card-value">${fmt(B.total)}<small> m³</small></div><div class="card-sub">${fmtDate(bS)} → ${fmtDate(bE)}</div><div class="card-sub">${B.d} j · ${fmtL(B.daily*1000)} L/j · ${B.count} relevés</div></div>
+    </div>
+    <div class="section-title">Écart B vs A</div>
+    <div class="grid2">
+      <div class="card"><div class="card-title">Consommation totale</div><div class="card-value ${parseFloat(dT)>0?'hl-bad':'hl-ok'}">${dT>0?'+':''}${dT}%</div><div class="card-sub">${fmt(B.total-A.total)} m³ d'écart</div></div>
+      <div class="card"><div class="card-title">Litres / jour</div><div class="card-value ${parseFloat(dD)>0?'hl-bad':'hl-ok'}">${dD>0?'+':''}${dD}%</div><div class="card-sub">${fmtL((B.daily-A.daily)*1000)} L/j d'écart</div></div>
+      <div class="card"><div class="card-title">Proj. annuelle A</div><div class="card-value">${fmt(A.daily*365)}<small> m³</small></div></div>
+      <div class="card"><div class="card-title">Proj. annuelle B</div><div class="card-value">${fmt(B.daily*365)}<small> m³</small></div></div>
+    </div>`;
+}
+
+renderAll();
+</script>
+</body>
+</html>
